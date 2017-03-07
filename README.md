@@ -20,6 +20,8 @@ The scraper scrapes [Checkee.info](http://checkee.info/) using urllib and Beauti
 Given that there are lots of cases never gets updated with a complete date, I only recorded those cases that are marked as *Complete*. When scraping is done, all the information will be assembled into a .csv file.
 
 ### Data Analysis
-I tried to do some simple analysis with the data by myself. About 99.9% of the recorded fields in the auto-generated .csv file is good but the rest will have some issues like missing or misaligned field that needs some tweek.
+I tried to do some simple analysis with the data by myself. About 99.99% of the recorded fields in the auto-generated .csv file is good but the rest will have some issues like missing or misaligned field that needs some tweek.
 
-Until 3/4/2017, I have **16297** visa application cases recorded dates back since 01/05/2009.
+Until 3/4/2017, I have **16297** visa application cases recorded dates back since 01/05/2009. I did some data analysis and [here's what I have found so far](https://github.com/chenchen2015/CheckeeInfo-Scraper/blob/master/CheckeeInfo-DataAnalysis.ipynb).
+
+
