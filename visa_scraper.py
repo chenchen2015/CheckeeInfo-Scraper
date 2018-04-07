@@ -25,9 +25,9 @@ currentTime = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 fileCSV = open('VISA-Data-{0}.csv'.format(datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')), 'w', encoding='utf-8')
 
 # Record the overall data
-totalEntries = 16480
-fileCSV.write('{0},{1}\n'.format('Time Updated', 'Total Entries'))
-fileCSV.write('{0},{1}\n\n'.format(currentTime, totalEntries))
+#totalEntries = 16480
+#fileCSV.write('{0},{1}\n'.format('Time Updated', 'Total Entries'))
+#fileCSV.write('{0},{1}\n\n'.format(currentTime, totalEntries))
 
 # Write table headings
 fileCSV.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n'.format(
@@ -69,15 +69,15 @@ for yr in range(2009,yearNow+1):
         print("Scraping Entry: {0}-{1:02d}, {2} records".format(yr,mo,len(tabEntry)))
 
         for idx in range(len(tabEntry)):
-            userName     = tabEntry[idx]('td')[1].text
-            visaType     = tabEntry[idx]('td')[2].text
-            visaEntry    = tabEntry[idx]('td')[3].text
-            city         = tabEntry[idx]('td')[4].text
-            major        = tabEntry[idx]('td')[5].text
-            status       = tabEntry[idx]('td')[-4].text
-            checkDate    = tabEntry[idx]('td')[-3].text
-            completeDate = tabEntry[idx]('td')[-2].text
-            waitDays     = tabEntry[idx]('td')[-1].text
+            userName     = tabEntry[idx]('td')[1].text.replace(',','')
+            visaType     = tabEntry[idx]('td')[2].text.replace(',','')
+            visaEntry    = tabEntry[idx]('td')[3].text.replace(',','')
+            city         = tabEntry[idx]('td')[4].text.replace(',','')
+            major        = tabEntry[idx]('td')[5].text.replace(',','')
+            status       = tabEntry[idx]('td')[-5].text.replace(',','')
+            checkDate    = tabEntry[idx]('td')[-4].text.replace(',','')
+            completeDate = tabEntry[idx]('td')[-3].text.replace(',','')
+            waitDays     = tabEntry[idx]('td')[-2].text.replace(',','')
 
             #print("caseID: {0:05d}, Visa Type: {1}".format(caseID, visaType))
 
