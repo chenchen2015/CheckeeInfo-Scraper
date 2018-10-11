@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-visaURL = 'http://checkee.info/main.php?dispdate={0:04d}-{1:02d}'
+visaURL = 'https://www.checkee.info/main.php?dispdate={0:04d}-{1:02d}'
 
 # Get current time
 timestamp = time.time()
