@@ -52,7 +52,8 @@ for yr in range(2009,yearNow+1):
 
         # Scrape a new page
         visaurl = visaURL.format(yr,mo)
-        url = urllib.request.urlopen(visaurl)
+        req = urllib.request.Request(visaurl, headers={'User-Agent': 'Mozilla/5.0'})
+        url = urllib.request.urlopen(req)
         visapage = BeautifulSoup(url.read(), "lxml")
 
         # Get table data by finding the largest table in the HTML
