@@ -4,14 +4,16 @@ Created on Sat Mar  4 18:50:16 2017
 
 @author: Chen Chen
 
-@version: 1.1
+@version: 1.2
 
 @license: MIT License
 """
-import urllib
+import urllib.request
 import time
 from datetime import datetime
 from bs4 import BeautifulSoup
+import pandas as pd
+import numpy as np
 
 visaURL = 'https://www.checkee.info/main.php?dispdate={0:04d}-{1:02d}'
 
@@ -22,51 +24,46 @@ monthNow = datetime.fromtimestamp(timestamp).month
 currentTime = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 # File handle
-fileCSV = open('VISA-Data-{0}.csv'.format(datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')), 'w', encoding='utf-8')
+time_string = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+filename = f'VISA-Data-{time_string}.csv'
 
-# Record the overall data
-#totalEntries = 16480
-#fileCSV.write('{0},{1}\n'.format('Time Updated', 'Total Entries'))
-#fileCSV.write('{0},{1}\n\n'.format(currentTime, totalEntries))
-
-# Write table headings
-fileCSV.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n'.format(
-              'User ID',
-              'User Name',
-              'Visa Type',
-              'Visa Entry',
-              'City',
-              'Major',
-              'Visa Status',
-              'Check Date',
-              'Complete Date',
-              'Waiting Days'
-              ))
+# Initialize dataframe
+df = pd.DataFrame(
+    columns=[
+        'UserName',
+        'VisaType',
+        'VisaEntry',
+        'City',
+        'Major',
+        'VisaStatus',
+        'CheckDate',
+        'CompleteDate',
+        'WaitDays'
+    ]
+)
+# set column datatypes
+df['UserName'] = pd.Series([], dtype=np.str)
+df['VisaType'] = pd.Categorical([])
+df['VisaEntry'] = pd.Categorical([])
+df['Major'] = pd.Categorical([])
+df['VisaStatus'] = pd.Categorical([])
+df['City'] = pd.Categorical([])
+df['CheckDate'] = pd.Series([], dtype='datetime64[ns]')
+df['CompleteDate'] = pd.Series([], dtype='datetime64[ns]')
+df['WaitDays'] = pd.Series([], dtype=np.int8)
 
 # Main Loop
-caseID = 0
 for yr in range(2009,yearNow+1):
     for mo in range(1,13):
         if yr == yearNow and mo > monthNow:
             break
-
         # Scrape a new page
         visaurl = visaURL.format(yr,mo)
         req = urllib.request.Request(visaurl, headers={'User-Agent': 'Mozilla/5.0'})
-        url = urllib.request.urlopen(req)
-        visapage = BeautifulSoup(url.read(), "lxml")
-
-        # Get table data by finding the largest table in the HTML
-        tabHTML = visapage('table', {'align' : 'center'})
-        tblLen = 0
-        for tbl in tabHTML:
-            if len(tbl) > tblLen:
-                tblLen = len(tbl)
-                tabData = tbl
-        
+        html = urllib.request.urlopen(req).read()
+        visapage = BeautifulSoup(html, 'html5lib')
         # Only get the completed cases - those marked in green
-        tabEntry = tabData('tr',{'bgcolor':'#00FF00'})
-                                 
+        tabEntry = visapage.find_all('tr', attrs={'bgcolor':'#4CBB17'})
         print("Scraping Entry: {0}-{1:02d}, {2} records".format(yr,mo,len(tabEntry)))
 
         for idx in range(len(tabEntry)):
@@ -79,23 +76,23 @@ for yr in range(2009,yearNow+1):
             checkDate    = tabEntry[idx]('td')[-4].text.replace(',','')
             completeDate = tabEntry[idx]('td')[-3].text.replace(',','')
             waitDays     = tabEntry[idx]('td')[-2].text.replace(',','')
-
             #print("caseID: {0:05d}, Visa Type: {1}".format(caseID, visaType))
-
-            fileCSV.write('{0:05d},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n'.format(
-              caseID,       # Case ID
-              userName,     # User Name
-              visaType,     # Visa Type
-              visaEntry,    # Visa Entry
-              city,         # City
-              major,        # Major
-              status,       # Visa Status
-              checkDate,    # Check Date
-              completeDate, # Complete Date
-              waitDays      # Waiting Days
-              ))
-
+            df = df.append(
+                {
+                    'UserID'       : caseID,
+                    'UserName'     : userName,
+                    'VisaType'     : visaType,
+                    'VisaEntry'    : visaEntry,
+                    'City'         : city,
+                    'Major'        : major,
+                    'VisaStatus'   : status,
+                    'CheckDate'    : checkDate,
+                    'CompleteDate' : completeDate,
+                    'WaitDays'     : waitDays
+                },
+                ignore_index=True
+            )
             caseID += 1
-
-fileCSV.close()
+            
+df.to_csv(filename)
 print('All Done!')
