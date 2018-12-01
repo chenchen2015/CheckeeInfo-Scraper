@@ -1,0 +1,8 @@
+plotly
+matplotlib
+pandas
+numpy
+scipy
+html5lib
+urllib
+beautifulsoup4
